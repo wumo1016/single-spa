@@ -121,8 +121,9 @@ export function reroute(pendingPromises = [], eventArguments) {
         return;
       }
 
+      // 卸载需要卸载的app
       const unloadPromises = appsToUnload.map(toUnloadPromise);
-
+      // 卸载需要卸载的app
       const unmountUnloadPromises = appsToUnmount
         .map(toUnmountPromise)
         .map((unmountPromise) => unmountPromise.then(toUnloadPromise));
@@ -143,6 +144,7 @@ export function reroute(pendingPromises = [], eventArguments) {
       /* We load and bootstrap apps while other apps are unmounting, but we
        * wait to mount the app until all apps are finishing unmounting
        */
+      // 加载应用
       const loadThenMountPromises = appsToLoad.map((app) => {
         return toLoadPromise(app).then((app) =>
           tryToBootstrapAndMount(app, unmountAllPromise)
@@ -153,6 +155,7 @@ export function reroute(pendingPromises = [], eventArguments) {
        * to be mounted. They each wait for all unmounting apps to finish up
        * before they mount.
        */
+      // 挂载应用
       const mountPromises = appsToMount
         .filter((appToMount) => appsToLoad.indexOf(appToMount) < 0)
         .map((appToMount) => {
