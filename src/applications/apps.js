@@ -232,6 +232,7 @@ function validateRegisterWithArguments(
   activeWhen,
   customProps
 ) {
+  // 1.name属性必须是 string 且 length > 0
   if (typeof name !== "string" || name.length === 0)
     throw Error(
       formatErrorMessage(
@@ -240,7 +241,8 @@ function validateRegisterWithArguments(
           `The 1st argument to registerApplication must be a non-empty string 'appName'`
       )
     );
-
+  
+  // 2.appOrLoadApp 必须为真
   if (!appOrLoadApp)
     throw Error(
       formatErrorMessage(
@@ -249,7 +251,7 @@ function validateRegisterWithArguments(
           "The 2nd argument to registerApplication must be an application or loading application function"
       )
     );
-
+  // 3.activeWhen 必须是个函数
   if (typeof activeWhen !== "function")
     throw Error(
       formatErrorMessage(
@@ -258,7 +260,7 @@ function validateRegisterWithArguments(
           "The 3rd argument to registerApplication must be an activeWhen function"
       )
     );
-
+  // 4.customProp属性必须是 undefined 或 对象(非null或数组)
   if (!validCustomProps(customProps))
     throw Error(
       formatErrorMessage(
@@ -270,6 +272,7 @@ function validateRegisterWithArguments(
 }
 
 export function validateRegisterWithConfig(config) {
+  // 1.config不能是 数组 或 null
   if (Array.isArray(config) || config === null)
     throw Error(
       formatErrorMessage(
@@ -277,6 +280,8 @@ export function validateRegisterWithConfig(config) {
         __DEV__ && "Configuration object can't be an Array or null!"
       )
     );
+
+  // 2.config只接受这四种属性 ["name", "app", "activeWhen", "customProps"]
   const validKeys = ["name", "app", "activeWhen", "customProps"];
   const invalidKeys = Object.keys(config).reduce(
     (invalidKeys, prop) =>
@@ -295,6 +300,8 @@ export function validateRegisterWithConfig(config) {
         invalidKeys.join(", ")
       )
     );
+  
+  // 3.name属性必须是 string 且 length > 0
   if (typeof config.name !== "string" || config.name.length === 0)
     throw Error(
       formatErrorMessage(
@@ -303,6 +310,8 @@ export function validateRegisterWithConfig(config) {
           "The config.name on registerApplication must be a non-empty string"
       )
     );
+  
+  // 4.app属性必须是 对象 或 函数
   if (typeof config.app !== "object" && typeof config.app !== "function")
     throw Error(
       formatErrorMessage(
@@ -311,6 +320,8 @@ export function validateRegisterWithConfig(config) {
           "The config.app on registerApplication must be an application or a loading function"
       )
     );
+
+  // 5.activeWhen属性比如是 字符串 或 函数 或 数组[字符串|函数]
   const allowsStringAndFunction = (activeWhen) =>
     typeof activeWhen === "string" || typeof activeWhen === "function";
   if (
@@ -327,6 +338,8 @@ export function validateRegisterWithConfig(config) {
           "The config.activeWhen on registerApplication must be a string, function or an array with both"
       )
     );
+
+  // 6.customProp属性必须是 undefined 或 对象(非null或数组)
   if (!validCustomProps(config.customProps))
     throw Error(
       formatErrorMessage(
@@ -361,6 +374,7 @@ function sanitizeArguments(
     customProps: null,
   };
 
+  // 如果第一个参数是一个对象 就直接使用第一个对象作为配置
   if (usingObjectAPI) {
     validateRegisterWithConfig(appNameOrConfig);
     registration.name = appNameOrConfig.name;
@@ -399,6 +413,7 @@ function sanitizeCustomProps(customProps) {
   return customProps ? customProps : {};
 }
 
+// 将 activeWhen 处理成一个函数
 function sanitizeActiveWhen(activeWhen) {
   let activeWhenArray = Array.isArray(activeWhen) ? activeWhen : [activeWhen];
   activeWhenArray = activeWhenArray.map((activeWhenOrPath) =>
